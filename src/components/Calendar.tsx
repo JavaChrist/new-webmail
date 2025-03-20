@@ -347,14 +347,20 @@ export default function MyCalendar() {
         .event-item {
           position: relative;
           overflow: visible !important;
+          transform-origin: center;
+          transition: all 0.2s ease-in-out;
         }
         .event-item:hover {
-          transform: scale(1.02);
+          transform: translateY(-2px);
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
           z-index: 1000 !important;
         }
         .event-content {
           overflow: visible !important;
+        }
+        /* Empêcher le débordement du conteneur du calendrier */
+        .rbc-calendar {
+          overflow: hidden;
         }
       `}</style>
       <h2 className="text-xl font-bold mb-4 text-center">

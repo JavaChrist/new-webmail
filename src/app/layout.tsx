@@ -1,11 +1,11 @@
-import "@/styles/globals.css";
-import { Metadata } from "next";
-import ClientLayout from "./ClientLayout";
+"use client";
 
-export const metadata: Metadata = {
-  title: "WebMail App",
-  description: "Application de messagerie moderne",
-};
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Sidebar from "@/components/Sidebar";
+import { ThemeProvider } from "@/context/ThemeContext";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -14,8 +14,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className="bg-gray-900 text-white">
-        <ClientLayout>{children}</ClientLayout>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <main className="flex-1 lg:ml-64">{children}</main>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

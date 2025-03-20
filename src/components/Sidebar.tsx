@@ -1,55 +1,113 @@
 "use client";
-import React, { ReactElement } from "react"; // ✅ Import ReactElement pour typer l'icône
+import { useState } from "react";
+import { useTheme } from "@/context/ThemeContext";
+import {
+  Calendar,
+  Mail,
+  Users,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  LogOut,
+} from "lucide-react";
 import Link from "next/link";
-import { Calendar, Users, Mail, LogOut } from "lucide-react"; // ✅ Import des icônes
-import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
+import { usePathname } from "next/navigation";
 import { auth } from "@/config/firebase";
+import { useRouter } from "next/navigation";
+
+const menuItems = [
+  { href: "/calendar", icon: Calendar, label: "Calendrier" },
+  { href: "/email", icon: Mail, label: "Email" },
+  { href: "/contacts", icon: Users, label: "Contacts" },
+];
 
 export default function Sidebar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const { isDarkMode, toggleTheme } = useTheme();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
-      router.push("/login"); // ✅ Redirige vers `/login` après déconnexion
+      await auth.signOut();
+      router.push("/login");
     } catch (error) {
-      console.error("Erreur de déconnexion :", error);
+      console.error("Erreur lors de la déconnexion:", error);
     }
   };
 
   return (
-    <div className="w-64 h-screen bg-gray-900 text-gray-100 p-6 shadow-lg flex flex-col">
-      {/* ✅ Logo avec Favicon au lieu de l'icône d'enveloppe */}
-      <div className="flex items-center space-x-3 text-2xl font-bold text-center mb-8">
-        <img src="/favicon.ico" alt="WebMail Logo" className="w-8 h-8" />
-        <span>WebMail</span>
-      </div>
+    <>
+      {/* Overlay pour fermer le menu sur mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      {/* Menu */}
-      <nav className="flex flex-col space-y-4">
-        <SidebarItem href="/calendar" icon={<Calendar size={20} />} text="Calendrier" />
-        <SidebarItem href="/contacts" icon={<Users size={20} />} text="Contacts" />
-        <SidebarItem href="/emails" icon={<Mail size={20} />} text="Emails" />
-      </nav>
-
-      {/* ✅ Bouton de déconnexion */}
+      {/* Bouton pour ouvrir/fermer le menu sur mobile */}
       <button
-        onClick={handleLogout}
-        className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition mt-auto"
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden"
       >
-        <LogOut size={20} /> <span className="text-lg">Déconnexion</span>
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
-    </div>
-  );
-}
 
-// ✅ Correction du typage de `SidebarItem`
-function SidebarItem({ href, icon, text }: { href: string; icon: ReactElement; text: string }) {
-  return (
-    <Link href={href} className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-      {icon}
-      <span className="text-lg">{text}</span>
-    </Link>
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full bg-gray-800 text-white w-64 p-4 z-50 transform transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-xl font-bold">WebMail</h1>
+            <button onClick={() => setIsOpen(false)} className="lg:hidden">
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1">
+            <ul className="space-y-2">
+              {menuItems.map(({ href, label, icon: Icon }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                      pathname === href ? "bg-blue-600" : "hover:bg-gray-700"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Icon size={20} />
+                    <span>{label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Footer avec boutons de thème et déconnexion */}
+          <div className="space-y-2">
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+              <span>{isDarkMode ? "Mode clair" : "Mode sombre"}</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700 transition-colors text-red-400"
+            >
+              <LogOut size={20} />
+              <span>Déconnexion</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+"use client";
+import { Fragment, useEffect, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { X } from "lucide-react";
 import {
   collection,
@@ -12,15 +14,19 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "@/config/firebase";
 
-// Définition des catégories et leurs couleurs
+// Types et constantes
 export const contactCategories = {
-  private: { label: "Privé", color: "#22c55e" },
-  professional: { label: "Professionnel", color: "#3b82f6" },
-  other: { label: "Autre", color: "#8b5cf6" },
+  personal: { label: "Personnel", color: "#3b82f6" },
+  professional: { label: "Professionnel", color: "#10b981" },
+  family: { label: "Famille", color: "#f59e0b" },
+  other: { label: "Autre", color: "#6b7280" },
 } as const;
 
-interface Contact {
-  id: string;
+export type ContactCategory = keyof typeof contactCategories;
+
+export interface Contact {
+  id?: string;
+  userId?: string;
   nom: string;
   prenom: string;
   email: string;
@@ -30,14 +36,14 @@ interface Contact {
   codePostal?: string;
   ville?: string;
   notes?: string;
-  categorie: keyof typeof contactCategories;
-  userId: string;
+  categorie: ContactCategory;
 }
 
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (contact: Contact) => void;
+  onDelete?: (contact: Contact) => void;
   selectedContact?: Contact;
 }
 
@@ -45,9 +51,10 @@ export default function ContactModal({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   selectedContact,
 }: ContactModalProps) {
-  const initialFormData = {
+  const [contact, setContact] = useState<Contact>({
     nom: "",
     prenom: "",
     email: "",
@@ -57,285 +64,262 @@ export default function ContactModal({
     codePostal: "",
     ville: "",
     notes: "",
-    categorie: "private" as const,
-  };
-
-  const [formData, setFormData] = useState(initialFormData);
+    categorie: "personal",
+  });
 
   useEffect(() => {
     if (selectedContact) {
-      // Si on modifie un contact existant
-      setFormData({
-        nom: selectedContact.nom.toUpperCase(),
-        prenom: selectedContact.prenom,
-        email: selectedContact.email.toLowerCase(),
-        telephone: selectedContact.telephone,
-        entreprise: selectedContact.entreprise || "",
-        adresse: selectedContact.adresse || "",
-        codePostal: selectedContact.codePostal || "",
-        ville: selectedContact.ville?.toUpperCase() || "",
-        notes: selectedContact.notes || "",
-        categorie: selectedContact.categorie,
-      });
+      setContact(selectedContact);
     } else {
-      // Si on crée un nouveau contact
-      setFormData(initialFormData);
+      setContact({
+        nom: "",
+        prenom: "",
+        email: "",
+        telephone: "",
+        entreprise: "",
+        adresse: "",
+        codePostal: "",
+        ville: "",
+        notes: "",
+        categorie: "personal",
+      });
     }
   }, [selectedContact]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth.currentUser) return;
-
-    try {
-      // Préparation des données du contact
-      const contactData = {
-        ...formData,
-        nom: formData.nom.toUpperCase(),
-        email: formData.email.toLowerCase(),
-        ville: formData.ville ? formData.ville.toUpperCase() : "",
-        entreprise: formData.entreprise || "",
-        adresse: formData.adresse || "",
-        codePostal: formData.codePostal || "",
-        notes: formData.notes || "",
-        userId: auth.currentUser.uid,
-      };
-
-      let savedContact: Contact;
-
-      if (selectedContact) {
-        // Mise à jour d'un contact existant
-        const contactRef = doc(db, "contacts", selectedContact.id);
-        await updateDoc(contactRef, contactData);
-        savedContact = {
-          ...contactData,
-          id: selectedContact.id,
-        } as Contact;
-      } else {
-        // Création d'un nouveau contact
-        const docRef = await addDoc(collection(db, "contacts"), contactData);
-        savedContact = {
-          ...contactData,
-          id: docRef.id,
-        } as Contact;
-      }
-
-      onSave(savedContact);
-      onClose();
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde du contact:", error);
-    }
+    onSave(contact);
   };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    let formattedValue = value;
-
-    // Formatage automatique pendant la saisie
-    if (name === "nom" || name === "ville") {
-      formattedValue = value.toUpperCase();
-    } else if (name === "email") {
-      formattedValue = value.toLowerCase();
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: formattedValue,
-    }));
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl">
-        <h2 className="text-xl font-bold mb-4 text-white">
-          {selectedContact ? "Modifier le contact" : "Nouveau contact"}
-        </h2>
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Informations principales */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Prénom
-              </label>
-              <input
-                type="text"
-                name="prenom"
-                value={formData.prenom}
-                onChange={handleInputChange}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Nom
-              </label>
-              <input
-                type="text"
-                name="nom"
-                value={formData.nom}
-                onChange={handleInputChange}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2 uppercase"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2 lowercase"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Téléphone
-              </label>
-              <input
-                type="tel"
-                name="telephone"
-                value={formData.telephone}
-                onChange={handleInputChange}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Entreprise */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Entreprise
-            </label>
-            <input
-              type="text"
-              name="entreprise"
-              value={formData.entreprise}
-              onChange={handleInputChange}
-              className="w-full bg-gray-700 text-white rounded px-3 py-2"
-            />
-          </div>
-
-          {/* Adresse */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Adresse
-            </label>
-            <input
-              type="text"
-              name="adresse"
-              value={formData.adresse}
-              onChange={handleInputChange}
-              className="w-full bg-gray-700 text-white rounded px-3 py-2"
-            />
-          </div>
-
-          {/* Code postal et Ville */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Code postal
-              </label>
-              <input
-                type="text"
-                name="codePostal"
-                value={formData.codePostal}
-                onChange={handleInputChange}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2"
-                pattern="[0-9]{5}"
-                title="Le code postal doit contenir 5 chiffres"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Ville
-              </label>
-              <input
-                type="text"
-                name="ville"
-                value={formData.ville}
-                onChange={handleInputChange}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2 uppercase"
-              />
-            </div>
-          </div>
-
-          {/* Catégorie */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Catégorie
-            </label>
-            <div className="flex gap-2">
-              {Object.entries(contactCategories).map(
-                ([key, { label, color }]) => (
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title
+                  as="h3"
+                  className="text-lg font-medium leading-6 text-gray-900 flex justify-between items-center"
+                >
+                  {selectedContact ? "Modifier le contact" : "Nouveau contact"}
                   <button
-                    key={key}
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        categorie: key as keyof typeof contactCategories,
-                      }))
-                    }
-                    className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
-                      formData.categorie === key
-                        ? "ring-2 ring-offset-2 ring-offset-gray-800"
-                        : ""
-                    }`}
-                    style={{ backgroundColor: color }}
+                    onClick={onClose}
+                    className="text-gray-400 hover:text-gray-500"
                   >
-                    {label}
+                    <X size={20} />
                   </button>
-                )
-              )}
-            </div>
-          </div>
+                </Dialog.Title>
 
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Notes
-            </label>
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              className="w-full bg-gray-700 text-white rounded px-3 py-2 min-h-[100px]"
-            />
-          </div>
+                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Nom
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={contact.nom}
+                        onChange={(e) =>
+                          setContact({ ...contact, nom: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Prénom
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={contact.prenom}
+                        onChange={(e) =>
+                          setContact({ ...contact, prenom: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
 
-          {/* Boutons d'action */}
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors"
-            >
-              {selectedContact ? "Modifier" : "Créer"}
-            </button>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={contact.email}
+                        onChange={(e) =>
+                          setContact({ ...contact, email: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Téléphone
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={contact.telephone}
+                        onChange={(e) =>
+                          setContact({ ...contact, telephone: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Entreprise
+                    </label>
+                    <input
+                      type="text"
+                      value={contact.entreprise}
+                      onChange={(e) =>
+                        setContact({ ...contact, entreprise: e.target.value })
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Adresse
+                    </label>
+                    <input
+                      type="text"
+                      value={contact.adresse}
+                      onChange={(e) =>
+                        setContact({ ...contact, adresse: e.target.value })
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Code postal
+                      </label>
+                      <input
+                        type="text"
+                        value={contact.codePostal}
+                        onChange={(e) =>
+                          setContact({ ...contact, codePostal: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Ville
+                      </label>
+                      <input
+                        type="text"
+                        value={contact.ville}
+                        onChange={(e) =>
+                          setContact({ ...contact, ville: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Catégorie
+                    </label>
+                    <select
+                      value={contact.categorie}
+                      onChange={(e) =>
+                        setContact({
+                          ...contact,
+                          categorie: e.target
+                            .value as keyof typeof contactCategories,
+                        })
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                      {Object.entries(contactCategories).map(
+                        ([key, { label }]) => (
+                          <option key={key} value={key}>
+                            {label}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Notes
+                    </label>
+                    <textarea
+                      value={contact.notes}
+                      onChange={(e) =>
+                        setContact({ ...contact, notes: e.target.value })
+                      }
+                      rows={3}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="mt-6 flex justify-end gap-3">
+                    {selectedContact && onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(contact)}
+                        className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                      >
+                        Supprimer
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                      {selectedContact ? "Mettre à jour" : "Créer"}
+                    </button>
+                  </div>
+                </form>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </Dialog>
+    </Transition>
   );
 }
