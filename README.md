@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📧 WebMail App
 
-## Getting Started
+## 📝 Présentation du Projet
+WebMail est une application web moderne développée avec **Next.js 15 (React)** et **TypeScript**. Elle intègre une gestion avancée des emails, contacts et calendriers pour offrir une expérience complète aux utilisateurs.
 
-First, run the development server:
+L'application repose sur **Firebase Authentication** pour la gestion des connexions et permet l'authentification via **email/mot de passe** ainsi que **Google Sign-In**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Technologies Utilisées
+- **Next.js 15 (Turbopack)** - Framework React
+- **TypeScript** - Typage sécurisé
+- **TailwindCSS** - Gestion des styles
+- **Firebase** - Authentification et stockage
+- **React Big Calendar** - Gestion des événements du calendrier
+
+---
+
+## ✅ Fonctionnalités Implémentées
+### 🔐 **Authentification**
+- Connexion via email/mot de passe (**Firebase Auth**)
+- Connexion avec Google
+- Gestion de la déconnexion avec bouton dans la sidebar
+- Protection des pages nécessitant une authentification
+
+### 📅 **Calendrier**
+- Affichage du calendrier en **vue jour, semaine et mois**
+- Navigation entre les différentes vues
+- Intégration de **React Big Calendar**
+
+### 📬 **Emails**
+- Page de boîte de réception avec une interface basique
+- Intégration d'icônes avec **Lucide React**
+
+### 📇 **Contacts**
+- Page pour afficher et gérer les contacts
+- Navigation entre les différentes pages via la sidebar
+
+---
+
+## 🔧 Fonctionnalités à Ajouter
+- 📌 **Amélioration du calendrier** : Gestion des événements, création/modification
+- 📌 **Gestion complète des emails** : Affichage des messages, envoi, réponse
+- 📌 **Amélioration des contacts** : Ajout, modification, suppression
+- 📌 **Design et UX** : Améliorer l'apparence et l'expérience utilisateur
+
+---
+
+## 📂 Structure du Projet
+```
+📦 new-webmail
+├── 📁 public             # Fichiers statiques (favicon, images...)
+├── 📁 src
+│   ├── 📁 app           # Pages principales
+│   │   ├── 📁 calendar  # Page du calendrier
+│   │   ├── 📁 contacts  # Page des contacts
+│   │   ├── 📁 emails    # Page des emails
+│   │   ├── 📁 login     # Page de connexion
+│   │   ├── 📄 layout.tsx  # Layout principal
+│   │   ├── 📄 layoutClient.tsx # Layout pour les pages publiques
+│   │   ├── 📄 page.tsx  # Page d'accueil
+│   ├── 📁 components   # Composants réutilisables
+│   │   ├── 📄 Calendar.tsx
+│   │   ├── 📄 LayoutWrapper.tsx
+│   │   ├── 📄 Login.tsx
+│   │   ├── 📄 Logout.tsx
+│   │   ├── 📄 Navbar.tsx
+│   │   ├── 📄 Sidebar.tsx
+│   ├── 📁 config       # Configuration Firebase
+│   │   ├── 📄 firebase.js
+│   │   ├── 📄 firebaseAdmin.ts
+│   ├── 📁 styles       # Fichiers CSS et Tailwind
+│   │   ├── 📄 globals.css
+│   │   ├── 📄 calendar.css
+│   │   ├── 📄 tailwind.css
+├── 📄 .env.local        # Variables d'environnement Firebase (ne pas partager)
+├── 📄 .gitignore
+├── 📄 eslint.config.mjs
+├── 📄 middleware.ts
+├── 📄 next-env.d.ts
+├── 📄 next.config.ts
+├── 📄 package-lock.json
+├── 📄 package.json
+├── 📄 postcss.config.cjs
+├── 📄 README.md
+├── 📄 tailwind.config.js
+├── 📄 tsconfig.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📌 Installation & Lancement
+### 1️⃣ **Cloner le projet**
+```sh
+git clone https://github.com/votre-repo/new-webmail.git
+cd new-webmail
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2️⃣ **Installer les dépendances**
+```sh
+npm install
+```
 
-## Learn More
+### 3️⃣ **Lancer le projet en mode développement**
+```sh
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Prochaines Étapes
+- **Corriger les derniers bugs liés à Tailwind et PostCSS** ✅
+- **Implémenter les événements dans le calendrier** 📅
+- **Finaliser la gestion complète des emails** 📬
+- **Déployer l'application sur Vercel** 🌍
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠 Développement
+Si vous souhaitez contribuer ou modifier l’application, n’hésitez pas à **forker le repo et à soumettre une pull request** !
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📧 **Contact** : contact@javachrist.fr
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🔥 **Let's build something great! 🚀**
+
