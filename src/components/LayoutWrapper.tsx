@@ -1,15 +1,23 @@
 "use client";
 import { usePathname } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "./Sidebar";
 
-export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
+export default function LayoutWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
-  const showSidebar = pathname !== "/login"; // ✅ Cacher la sidebar sur la page login
+
+  // Ne pas afficher la Sidebar sur la page de login
+  if (pathname === "/login") {
+    return <>{children}</>;
+  }
 
   return (
     <div className="flex min-h-screen">
-      {showSidebar && <Sidebar />} {/* ✅ Sidebar présente sauf sur /login */}
-      <main className="flex-1">{children}</main>
+      <Sidebar />
+      <main className="flex-1 p-4">{children}</main>
     </div>
   );
 }

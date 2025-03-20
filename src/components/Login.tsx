@@ -1,7 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { auth } from "@/config/firebase";
 
 export default function Login() {
@@ -30,7 +34,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/emails");
+      router.push("/app");
     } catch (err: any) {
       setError("Échec de connexion : " + err.message);
     }
@@ -40,7 +44,7 @@ export default function Login() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      router.push("/emails");
+      router.push("/app");
     } catch (error: any) {
       setError("Erreur avec Google : " + error.message);
     }
