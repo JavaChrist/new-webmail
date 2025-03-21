@@ -312,7 +312,7 @@ ${contact.entreprise ? `ORG:${contact.entreprise}\n` : ""}${
               ...currentContact,
               id: crypto.randomUUID(),
               userId: auth.currentUser?.uid || "",
-              categorie: "private",
+              categorie: "personal" as ContactCategory,
               telephone: currentContact.telephone || "",
             } as Contact);
           }
@@ -326,6 +326,7 @@ ${contact.entreprise ? `ORG:${contact.entreprise}\n` : ""}${
           currentContact.telephone = value.trim();
         } else if (key === "ORG") {
           currentContact.entreprise = value.trim();
+          currentContact.categorie = "professional" as ContactCategory;
         } else if (key === "ADR") {
           const [, , street, city, , postal] = value.split(";");
           currentContact.adresse = street.trim();
@@ -352,7 +353,7 @@ ${contact.entreprise ? `ORG:${contact.entreprise}\n` : ""}${
         id: doc.id,
         ...doc.data(),
         categorie: (doc.data().categorie ||
-          "private") as keyof typeof contactCategories,
+          "personal") as keyof typeof contactCategories,
       })) as Contact[];
 
       setContacts(loadedContacts);

@@ -1,123 +1,110 @@
-# 📧 WebMail App
+# WebMail - Application de Messagerie Web
 
-## 📝 Présentation du Projet
-WebMail est une application web moderne développée avec **Next.js 15 (React)** et **TypeScript**. Elle intègre une gestion avancée des emails, contacts et calendriers pour offrir une expérience complète aux utilisateurs.
+## 📋 Description
 
-L'application repose sur **Firebase Authentication** pour la gestion des connexions et permet l'authentification via **email/mot de passe** ainsi que **Google Sign-In**.
+WebMail est une application de messagerie web moderne développée avec Next.js, Firebase et TailwindCSS. Elle permet de gérer vos emails, contacts et calendrier dans une interface élégante et intuitive.
 
-## 🚀 Technologies Utilisées
-- **Next.js 15 (Turbopack)** - Framework React
-- **TypeScript** - Typage sécurisé
-- **TailwindCSS** - Gestion des styles
-- **Firebase** - Authentification et stockage
-- **React Big Calendar** - Gestion des événements du calendrier
+## 🚀 Fonctionnalités
 
----
+### 📧 Gestion des Emails
 
-## ✅ Fonctionnalités Implémentées
-### 🔐 **Authentification**
-- Connexion via email/mot de passe (**Firebase Auth**)
-- Connexion avec Google
-- Gestion de la déconnexion avec bouton dans la sidebar
-- Protection des pages nécessitant une authentification
+- Configuration IMAP/SMTP pour la connexion à votre compte email
+- Synchronisation des emails avec chiffrement sécurisé des mots de passe
+- Lecture, envoi et gestion des emails
+- Support des pièces jointes
+- Interface utilisateur moderne et réactive
+- Gestion des brouillons et des emails envoyés
 
-### 📅 **Calendrier**
-- Affichage du calendrier en **vue jour, semaine et mois**
-- Navigation entre les différentes vues
-- Intégration de **React Big Calendar**
+### 👥 Gestion des Contacts
 
-### 📬 **Emails**
-- Page de boîte de réception avec une interface basique
-- Intégration d'icônes avec **Lucide React**
+- Création, modification et suppression de contacts
+- Organisation des contacts par catégories
+- Recherche rapide de contacts
+- Synchronisation avec Firebase
+- Interface intuitive de gestion des contacts
 
-### 📇 **Contacts**
-- Page pour afficher et gérer les contacts
-- Navigation entre les différentes pages via la sidebar
+### 📅 Calendrier
 
----
+- Gestion des événements avec différentes priorités
+- Catégorisation des événements (réunions, tâches, rappels, personnel, autre)
+- Vue par mois, semaine, jour et agenda
+- Interface personnalisée en français
+- Synchronisation avec Firebase
 
-## 🔧 Fonctionnalités à Ajouter
-- 📌 **Amélioration du calendrier** : Gestion des événements, création/modification
-- 📌 **Gestion complète des emails** : Affichage des messages, envoi, réponse
-- 📌 **Amélioration des contacts** : Ajout, modification, suppression
-- 📌 **Design et UX** : Améliorer l'apparence et l'expérience utilisateur
+## 🛠️ Technologies Utilisées
 
----
+- Next.js 14 (App Router)
+- Firebase (Authentication, Firestore)
+- TailwindCSS
+- TypeScript
+- Node-IMAP et Nodemailer
+- React Big Calendar
+- Lucide Icons
+- date-fns
 
-## 📂 Structure du Projet
-```
-📦 new-webmail
-├── 📁 public             # Fichiers statiques (favicon, images...)
-├── 📁 src
-│   ├── 📁 app           # Pages principales
-│   │   ├── 📁 calendar  # Page du calendrier
-│   │   ├── 📁 contacts  # Page des contacts
-│   │   ├── 📁 emails    # Page des emails
-│   │   ├── 📁 login     # Page de connexion
-│   │   ├── 📄 layout.tsx  # Layout principal
-│   │   ├── 📄 layoutClient.tsx # Layout pour les pages publiques
-│   │   ├── 📄 page.tsx  # Page d'accueil
-│   ├── 📁 components   # Composants réutilisables
-│   │   ├── 📄 Calendar.tsx
-│   │   ├── 📄 LayoutWrapper.tsx
-│   │   ├── 📄 Login.tsx
-│   │   ├── 📄 Logout.tsx
-│   │   ├── 📄 Navbar.tsx
-│   │   ├── 📄 Sidebar.tsx
-│   ├── 📁 config       # Configuration Firebase
-│   │   ├── 📄 firebase.js
-│   │   ├── 📄 firebaseAdmin.ts
-│   ├── 📁 styles       # Fichiers CSS et Tailwind
-│   │   ├── 📄 globals.css
-│   │   ├── 📄 calendar.css
-│   │   ├── 📄 tailwind.css
-├── 📄 .env.local        # Variables d'environnement Firebase (ne pas partager)
-├── 📄 .gitignore
-├── 📄 eslint.config.mjs
-├── 📄 middleware.ts
-├── 📄 next-env.d.ts
-├── 📄 next.config.ts
-├── 📄 package-lock.json
-├── 📄 package.json
-├── 📄 postcss.config.cjs
-├── 📄 README.md
-├── 📄 tailwind.config.js
-├── 📄 tsconfig.json
+## 🔒 Sécurité
+
+- Authentification utilisateur via Firebase
+- Chiffrement des mots de passe email
+- Règles de sécurité Firestore personnalisées
+- Gestion sécurisée des tokens d'authentification
+
+## 🔧 Configuration Requise
+
+- Node.js 18+
+- Compte Firebase
+- Compte email avec accès IMAP/SMTP
+
+## ⚙️ Variables d'Environnement
+
+```env
+# Firebase Config
+NEXT_PUBLIC_FIREBASE_API_KEY=votre_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=votre_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=votre_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=votre_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=votre_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=votre_app_id
+
+# Firebase Admin
+FIREBASE_ADMIN_PROJECT_ID=votre_project_id
+FIREBASE_ADMIN_CLIENT_EMAIL=votre_client_email
+FIREBASE_ADMIN_PRIVATE_KEY=votre_private_key
+
+# Encryption
+ENCRYPTION_KEY=votre_cle_de_chiffrement
 ```
 
----
+## 📝 Notes de Mise à Jour
 
-## 📌 Installation & Lancement
-### 1️⃣ **Cloner le projet**
-```sh
-git clone https://github.com/votre-repo/new-webmail.git
-cd new-webmail
-```
+### 🆕 Dernières Modifications (Mars 2024)
 
-### 2️⃣ **Installer les dépendances**
-```sh
-npm install
-```
+#### 📧 Module Email
 
-### 3️⃣ **Lancer le projet en mode développement**
-```sh
-npm run dev
-```
+- Amélioration de la synchronisation des emails
+- Ajout de logs détaillés pour le débogage
+- Correction du chiffrement des mots de passe
+- Optimisation de la gestion des erreurs
+- Amélioration de la configuration Firebase Admin
 
----
+#### 👥 Module Contacts
 
-## 🚀 Prochaines Étapes
-- **Corriger les derniers bugs liés à Tailwind et PostCSS** ✅
-- **Implémenter les événements dans le calendrier** 📅
-- **Finaliser la gestion complète des emails** 📬
-- **Déployer l'application sur Vercel** 🌍
+- Ajout de la gestion complète des contacts
+- Interface utilisateur améliorée
+- Synchronisation avec Firestore
+- Système de catégorisation des contacts
 
----
+## 🚀 Installation
 
-## 🛠 Développement
-Si vous souhaitez contribuer ou modifier l’application, n’hésitez pas à **forker le repo et à soumettre une pull request** !
+1. Cloner le repository
+2. Installer les dépendances : `npm install`
+3. Configurer les variables d'environnement
+4. Lancer en développement : `npm run dev`
 
-📧 **Contact** : contact@javachrist.fr
+## 👥 Contribution
 
-🔥 **Let's build something great! 🚀**
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request.
 
+## 📄 Licence
+
+MIT
